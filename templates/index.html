@@ -44,16 +44,49 @@
                         var elem = document.getElementById("log-btn");
                         var status = '{{session.loggedin}}';
                         var variable = 'True';
-
+                        
                         if (status == variable){
                             elem.innerHTML = "Logout"
                         } else if (status != variable) {
                             elem.innerHTML = "Login"
                         }
-                    </script>
-
+                        </script>
                 </div>
             </nav>
         </div>
+            <!-- ======= Hero Section ======= -->
+            <section id="hero" class="d-flex align-items-center justify-content-center">
+                <div class="container" data-aos="fade-up">
+                    <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="150">
+                        <div class="col-xl-6 col-lg-8">
+                        <h1>Skin Cancer Classification<span>.</span></h1>
+                        </div>
+                    </div>
+            </div>
+            </section><!-- End Hero -->
+
+            <div class="card-group">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Overview</h5>
+                    <p class="card-text">The most serious type of skin cancer.
+                        Melanoma occurs when the pigment-producing cells that give colour to the skin become cancerous.
+                        </p>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Symptoms</h5>
+                    <p class="card-text">Symptoms might include a new, unusual growth or a change in an existing mole. Melanomas can occur anywhere on the body.</p>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Treatments</h5>
+                    <p class="card-text">Treatment may involve surgery, radiation, medication or in some cases, chemotherapy.</p>
+                  </div>
+                </div>
+              </div>
+
     </body>
 </html>

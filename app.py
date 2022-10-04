@@ -1,4 +1,3 @@
-from http.client import RemoteDisconnected
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
@@ -81,4 +80,10 @@ def register():
     elif request.method == 'POST':
         msg = 'Please fill out the form !'
     return render_template('register.html', msg = msg)
+
+@app.route('/result', methods= ['GET', 'POST'])
+def result():
+    pass
+
 app.run(debug=True)
+

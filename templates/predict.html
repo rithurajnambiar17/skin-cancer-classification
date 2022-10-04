@@ -13,43 +13,25 @@
             <center>
                 <h1>Skin Cancer Classification</h1>
             </center>
-            <form action="{{ url_for('result') }}">
+            <form action="{{ url_for('result') }}" method="POST" enctype="multipart/form-data">
                 <div class="mb-5">
-                    <input class="form-control" type="file" id="rawImage" onchange="preview()"> <br>
+                    <input class="form-control" type="file" name = "rawImage" enctype="multipart/form-data"> <br>
 
                     <select name="preprocess" id="preprocess" class="form-control">
                         <option value="na">No Pre-Processing</option>
                         <option value="sharpening">Sharpening</option>
                         <option value="normalization">Normalization</option>
                     </select>
-
                     <br>
-
                     <select name="model" id="model" class="form-control">
                         <option value="resent">ResNet</option>
                         <option value="cnn">CNN</option>
                     </select>                   
-
                     <br>
-                    
-                    <button onclick="clearImage()" class="btn btn-primary mt-3">Predict</button>
+                    <input class="btn btn-primary mt-3" type="submit" value="Predict">
                 </div>
             </form>
         </div>
-
-        Raw Image:
-        <img id="frame" src="" class="img-fluid" />
-        
-        
-        <script>
-            function preview() {
-                frame.src = URL.createObjectURL(event.target.files[0]);
-            }
-            function clearImage() {
-                document.getElementById('rawImage').value = null;
-                frame.src = "";
-            }
-        </script>
 
     </body>
 </html>

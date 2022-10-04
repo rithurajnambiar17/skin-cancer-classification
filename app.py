@@ -1,13 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
+import tensorflow as tf
 import MySQLdb.cursors
+import numpy as np
+import cv2
 import re
+import os
  
- 
+#Programs
+from programs.reshapeImage import reshapeImage
+
 app = Flask(__name__)
- 
- 
-app.secret_key = 'your secret key'
+app.config['UPLOAD_FOLDER'] = 'INCOMING/'
+#Loading models
+# CNN
+cnnWithoutPreprocess = tf.keras.models.load_model('models/cnn/without-preprocessing1.h5')
+
 app.static_folder = 'static'
  
 app.config['MYSQL_HOST'] = 'localhost'
@@ -15,6 +23,18 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'admin'
 app.config['MYSQL_DB'] = 'skincancer'
  
+generator = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale = 1./255,
+    rotation_range = 50,
+    width_shift_range = 2.0,
+    height_shift_range = 2.0,    
+    shear_range = 0.4,
+    zoom_range = 2.0,
+    horizontal_flip = True,
+    vertical_flip = True,
+    fill_mode = 'nearest'
+)
+
 mysql = MySQL(app)
  
 @app.route('/')
@@ -81,9 +101,19 @@ def register():
         msg = 'Please fill out the form !'
     return render_template('register.html', msg = msg)
 
-@app.route('/result', methods= ['GET', 'POST'])
+@app.route('/result', methods= ['POST', 'GET'])
 def result():
-    pass
+    if request.method == 'POST':
+        image = request.files['rawImage']
+        path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+        image.save(path)
+
+        image = cv2.imread(path)
+        generator.apply_transform(image)
+
+        # image = reshapeImage(pixels)
+        prediction = cnnWithoutPreprocess.predict(image)
+        return render_template('result.html', pred=prediction)
 
 app.run(debug=True)
 

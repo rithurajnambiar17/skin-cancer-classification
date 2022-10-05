@@ -109,13 +109,12 @@ def result():
         image.save(path)
 
         image = cv2.imread(path)
-
-        # image = reshapeImage(pixels)
-        image = tf.keras.preprocessing.image.smart_resize(
-        image, (225, 225), interpolation='bilinear'
-        )
-
-        prediction = cnnWithoutPreprocess.predict(image)
+        image = reshapeImage(image)
+        pred = cnnWithoutPreprocess.predict(image, verbose=0)[0]
+        if int(pred) == 0:
+            prediction = 'benign'
+        elif int(pred) == 1:
+            prediction = 'malignant'
 
         return render_template('result.html', pred=prediction)
 

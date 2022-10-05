@@ -109,10 +109,14 @@ def result():
         image.save(path)
 
         image = cv2.imread(path)
-        generator.apply_transform(image)
 
         # image = reshapeImage(pixels)
+        image = tf.keras.preprocessing.image.smart_resize(
+        image, (225, 225), interpolation='bilinear'
+        )
+
         prediction = cnnWithoutPreprocess.predict(image)
+
         return render_template('result.html', pred=prediction)
 
 app.run(debug=True)

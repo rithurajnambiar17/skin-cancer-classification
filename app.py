@@ -15,6 +15,15 @@ app.config['UPLOAD_FOLDER'] = 'INCOMING/'
 #Loading models
 # CNN
 cnnWithoutPreprocess = tf.keras.models.load_model('models/cnn/without-preprocessing1.h5')
+cnnWithSharpening = tf.keras.models.load_model('models/cnn/with-sharpening.h5')
+cnnWithNormalization = tf.keras.models.load_model('models/cnn/with-normalization.h5')
+#Resnet
+resnetWithoutPreprocess = tf.keras.models.load_model('models/resnet/without-preprocessing1.h5')
+resnetWithSharpening = tf.keras.models.load_model('models/resnet/with-sharpening.h5')
+resnetWithNormalization = tf.keras.models.load_model('models/resnet/with-normalization.h5')
+#Other Model
+combined_model = tf.keras.models.load_model('models/imagesTextCombined.h5')
+
 
 app.static_folder = 'static'
  
@@ -22,18 +31,6 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'admin'
 app.config['MYSQL_DB'] = 'skincancer'
- 
-generator = tf.keras.preprocessing.image.ImageDataGenerator(
-    rescale = 1./255,
-    rotation_range = 50,
-    width_shift_range = 2.0,
-    height_shift_range = 2.0,    
-    shear_range = 0.4,
-    zoom_range = 2.0,
-    horizontal_flip = True,
-    vertical_flip = True,
-    fill_mode = 'nearest'
-)
 
 mysql = MySQL(app)
  
@@ -47,7 +44,8 @@ def about():
 
 @app.route('/predict')
 def predict():
-    return render_template('predict.html')
+    prediction = ''
+    return render_template('predict.html', pred=prediction)
 
 @app.route('/login', methods =['GET', 'POST'])
 def login():
@@ -110,13 +108,33 @@ def result():
 
         image = cv2.imread(path)
         image = reshapeImage(image)
-        pred = cnnWithoutPreprocess.predict(image, verbose=0)[0]
+
+        preprocessMethod = request.form['preprocess']
+        modelType = request.form['model']
+
+        if modelType == 'cnn':
+            if preprocessMethod == 'na':
+                model = cnnWithoutPreprocess
+            elif preprocessMethod == 'sharpening':
+                model = cnnWithSharpening
+            elif preprocessMethod == 'normalization':
+                model = cnnWithNormalization
+
+        elif modelType == 'resnet':
+            if preprocessMethod == 'na':
+                model = resnetWithoutPreprocess
+            elif preprocessMethod == 'sharpening':
+                model = resnetWithSharpening
+            elif preprocessMethod == 'normalization':
+                model = resnetWithNormalization
+
+        pred = model.predict(image, verbose=0)[0]
         if int(pred) == 0:
             prediction = 'benign'
         elif int(pred) == 1:
             prediction = 'malignant'
 
-        return render_template('result.html', pred=prediction)
+        return render_template('predict.html',pred=prediction)
 
 app.run(debug=True)
 

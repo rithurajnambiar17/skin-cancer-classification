@@ -24,13 +24,15 @@
                     </select>
                     <br>
                     <select name="model" id="model" class="form-control">
-                        <option value="resent">ResNet</option>
+                        <option value="resnet">ResNet</option>
                         <option value="cnn">CNN</option>
                     </select>                   
                     <br>
                     <input class="btn btn-primary mt-3" type="submit" value="Predict">
+                    <a href="/predict" class="btn btn-primary mt-3">Clear</a>
                 </div>
             </form>
+            <div id="result">{{pred}}</div>
         </div>
 
     </body>

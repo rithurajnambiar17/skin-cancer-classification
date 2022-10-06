@@ -47,6 +47,10 @@ def predict():
     prediction = ''
     return render_template('predict.html', pred=prediction)
 
+@app.route('/agepredict')
+def agepredict():
+    pass
+
 @app.route('/login', methods =['GET', 'POST'])
 def login():
     msg = ''

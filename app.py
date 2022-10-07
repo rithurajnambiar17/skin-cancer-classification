@@ -9,6 +9,8 @@ import os
  
 #Programs
 from programs.reshapeImage import reshapeImage
+from programs.sharpen import sharpen
+from programs.normalize import normalize
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'INCOMING/'
@@ -41,6 +43,7 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 @app.route('/predict')
 def predict():
@@ -140,5 +143,33 @@ def result():
 
         return render_template('predict.html',pred=prediction)
 
+@app.route('/preprocess')
+def preprocess():
+    if request.method == 'POST':
+        IMAGE = request.files['rawImage']
+        oriPath = os.path.join(app.config['UPLOAD_FOLDER'], IMAGE.filename)
+        IMAGE.save(oriPath)
+        
+        #PATHS
+        SHARPEN_PATH = 'INCOMING/preprocess/sharpen/'
+        NORMALIZE_PATH = 'INCOMING/preprocess/normalized/'
+
+        image = cv2.imread(oriPath)
+        preprocessMethod = request.form['preprocess']
+
+        if preprocessMethod == 'na':
+            img = image
+            finalPath = oriPath
+        elif preprocessMethod == 'sharpening':
+            img = sharpen(image)
+            finalPath = SHARPEN_PATH + IMAGE.filename + '-sharpen.jpg'
+            cv2.imwrite(finalPath, img)
+        elif preprocessMethod == 'normalization':
+            img = normalize(image)
+            finalPath = NORMALIZE_PATH + IMAGE.filename + '-normalize.jpg'
+            cv2.imwrite(finalPath, img)
+        
+    return render_template('preprocess.html', path=finalPath, oriPath = oriPath)
+    
 app.run(debug=True)
 

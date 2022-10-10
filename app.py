@@ -6,6 +6,9 @@ import numpy as np
 import cv2
 import re
 import os
+
+import warnings
+warnings.filterwarnings('ignore')
  
 #Programs
 from programs.reshapeImage import reshapeImage
@@ -13,7 +16,7 @@ from programs.sharpen import sharpen
 from programs.normalize import normalize
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'INCOMING/'
+app.config['UPLOAD_FOLDER'] = os.path.join('static', 'INCOMING/')
 #Loading models
 # CNN
 cnnWithoutPreprocess = tf.keras.models.load_model('models/cnn/without-preprocessing1.h5')
@@ -28,7 +31,9 @@ combined_model = tf.keras.models.load_model('models/imagesTextCombined.h5')
 
 
 app.static_folder = 'static'
- 
+app.secret_key = 'secret' 
+
+
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'admin'
@@ -110,29 +115,57 @@ def register():
 def result():
     if request.method == 'POST':
         image = request.files['rawImage']
-        path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-        image.save(path)
+        oripath = app.config['UPLOAD_FOLDER'] + 'image.jpg'
+        image.save(oripath)
 
-        image = cv2.imread(path)
-        image = reshapeImage(image)
+        image = cv2.imread(oripath)
 
         preprocessMethod = request.form['preprocess']
         modelType = request.form['model']
 
+        #PATHS
+        SHARPEN_PATH = 'preprocess/sharpen/'
+        NORMALIZE_PATH = 'preprocess/normalized/'
+
         if modelType == 'cnn':
             if preprocessMethod == 'na':
                 model = cnnWithoutPreprocess
+                image = reshapeImage(image)
+                path = ''
+
             elif preprocessMethod == 'sharpening':
+                path = app.config['UPLOAD_FOLDER'] + SHARPEN_PATH + 'image.jpg'
+                image = sharpen(image)
+                cv2.imwrite(path, sharpen(image))
+                image = reshapeImage(image)
                 model = cnnWithSharpening
+                
             elif preprocessMethod == 'normalization':
+                path = os.path.join(app.config['UPLOAD_FOLDER'] + NORMALIZE_PATH, 'image.jpg')
+                image = normalize(image)
+                cv2.imwrite(path, normalize(image))
+                image = reshapeImage(image)
                 model = cnnWithNormalization
+
 
         elif modelType == 'resnet':
             if preprocessMethod == 'na':
                 model = resnetWithoutPreprocess
+                image = reshapeImage(image)
+                path=''
+
             elif preprocessMethod == 'sharpening':
+                path = os.path.join(app.config['UPLOAD_FOLDER'] + SHARPEN_PATH, 'image.jpg')
+                image = sharpen(image)
+                cv2.imwrite(path, sharpen(image))
+                image = reshapeImage(image)
                 model = resnetWithSharpening
+
             elif preprocessMethod == 'normalization':
+                path = os.path.join(app.config['UPLOAD_FOLDER'] + NORMALIZE_PATH, 'image.jpg')
+                image = normalize(image)
+                cv2.imwrite(path, normalize(image))                
+                image = reshapeImage(image)
                 model = resnetWithNormalization
 
         pred = model.predict(image, verbose=0)[0]
@@ -141,35 +174,7 @@ def result():
         elif int(pred) == 1:
             prediction = 'malignant'
 
-        return render_template('predict.html',pred=prediction)
-
-@app.route('/preprocess')
-def preprocess():
-    if request.method == 'POST':
-        IMAGE = request.files['rawImage']
-        oriPath = os.path.join(app.config['UPLOAD_FOLDER'], IMAGE.filename)
-        IMAGE.save(oriPath)
-        
-        #PATHS
-        SHARPEN_PATH = 'INCOMING/preprocess/sharpen/'
-        NORMALIZE_PATH = 'INCOMING/preprocess/normalized/'
-
-        image = cv2.imread(oriPath)
-        preprocessMethod = request.form['preprocess']
-
-        if preprocessMethod == 'na':
-            img = image
-            finalPath = oriPath
-        elif preprocessMethod == 'sharpening':
-            img = sharpen(image)
-            finalPath = SHARPEN_PATH + IMAGE.filename + '-sharpen.jpg'
-            cv2.imwrite(finalPath, img)
-        elif preprocessMethod == 'normalization':
-            img = normalize(image)
-            finalPath = NORMALIZE_PATH + IMAGE.filename + '-normalize.jpg'
-            cv2.imwrite(finalPath, img)
-        
-    return render_template('preprocess.html', path=finalPath, oriPath = oriPath)
+        return render_template('predict.html',pred=prediction, prepath=path, oripath = oripath)
     
 app.run(debug=True)
 

@@ -40,9 +40,24 @@
                         <!-- <a href="/agepredict" class="btn btn-primary mt-3">Use Age for Prediction</a> -->
                     </div>
                 </form>
-            <img id="output" class = "img-fluid" width="200" />	
-            <div id="result">{{pred}}</div>
-            <a href="/preprocess" class="btn btn-primary mt-3">Preprocess</a>
+            <!-- <img id="output" class = "img-fluid" width="200" />	 -->
+            <center>
+                <div id="result">The prediction for the given image is: <b>{{pred}}</b></div><br>
+            </center>
+            <div class="row">
+                <div class="col-md-6">
+                    <center>
+                        <img src="{{ oripath }}" alt="Original Image"><br><br><br>
+                        Raw Image
+                    </center>
+                </div>
+                <div class="col-md-6">
+                    <center>
+                        <img src="{{ prepath }}" alt="Preprocessed Image"><br><br><br>
+                        Preprocessed Image
+                    </center>
+                </div>
+            </div>
         </div>
 
     </body>

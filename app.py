@@ -172,7 +172,7 @@ def result():
         if int(pred) == 0:
             prediction = 'benign'
         elif int(pred) == 1:
-            prediction = 'malignant'
+            prediction = 'malignant' 
 
         return render_template('predict.html',pred=prediction, prepath=path, oripath = oripath)
     

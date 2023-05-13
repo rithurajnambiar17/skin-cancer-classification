@@ -10,7 +10,7 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
  
-#Programs
+#Programs 
 from programs.reshapeImage import reshapeImage
 from programs.sharpen import sharpen
 from programs.normalize import normalize
